@@ -377,13 +377,133 @@ export default function DashboardPage() {
 
   if (!me) {
     return (
-      <div className="min-h-screen bg-[#f8fafc] flex items-center justify-center">
-        <div className="flex flex-col items-center gap-3">
-          <Loader2 className="w-8 h-8 text-[#4f46e5] animate-spin" />
-          <span className="text-xs font-mono text-[#475569] tracking-wider uppercase">
-            Synchronizing Vault...
-          </span>
-        </div>
+      <div className="min-h-screen bg-[#f8fafc] text-[#0f172a]" aria-busy="true" aria-label="Loading dashboard">
+        {/* Skeleton Sticky Navbar */}
+        <header className="sticky top-0 z-30 border-b border-[#e2e8f0] bg-[#ffffff] shadow-[0_2px_10px_rgba(15,23,42,0.03)]">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
+            <div className="flex items-center gap-3">
+              <div className="h-9 w-9 rounded-lg brand-gradient opacity-80 animate-pulse" />
+              <div className="space-y-1.5">
+                <div className="h-4 w-24 rounded bg-slate-200 animate-pulse" />
+                <div className="h-2.5 w-40 rounded bg-slate-100 animate-pulse hidden sm:block" />
+              </div>
+            </div>
+            <div className="flex items-center gap-3">
+              <div className="hidden md:block h-8 w-44 rounded-lg bg-slate-100 border border-[#e2e8f0] animate-pulse" />
+              <div className="h-8 w-20 rounded-lg bg-slate-200 animate-pulse" />
+            </div>
+          </div>
+        </header>
+
+        {/* Skeleton Main Content */}
+        <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
+          {/* 4 KPI Stat Cards Skeleton */}
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+            {[0, 1, 2, 3].map(i => (
+              <div
+                key={i}
+                className="flat-panel rounded-xl px-4 py-3.5 border-t-[3px] border-t-[#4f46e5] space-y-2"
+              >
+                <div className="h-3 w-24 rounded bg-slate-200 animate-pulse" />
+                <div className="h-6 w-28 rounded bg-slate-200 animate-pulse" />
+                <div className="h-2.5 w-20 rounded bg-slate-100 animate-pulse" />
+              </div>
+            ))}
+          </div>
+
+          {/* Top Row: Wallets & 4-Block Pipeline Skeleton */}
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            <div className="lg:col-span-5 flat-panel rounded-2xl p-6 space-y-5">
+              <div className="flex items-center gap-2.5">
+                <div className="h-8 w-8 rounded-lg bg-[#eef2ff] animate-pulse" />
+                <div className="space-y-1.5">
+                  <div className="h-4 w-36 rounded bg-slate-200 animate-pulse" />
+                  <div className="h-3 w-44 rounded bg-slate-100 animate-pulse" />
+                </div>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {[0, 1].map(i => (
+                  <div key={i} className="rounded-xl border border-[#e2e8f0] p-4 space-y-2.5">
+                    <div className="flex items-center justify-between">
+                      <div className="h-3.5 w-20 rounded bg-slate-200 animate-pulse" />
+                      <div className="h-2 w-2 rounded-full bg-slate-200 animate-pulse" />
+                    </div>
+                    <div className="h-3 w-28 rounded bg-slate-100 animate-pulse" />
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="lg:col-span-7 flat-panel rounded-2xl p-6 space-y-5">
+              <div className="flex items-center justify-between">
+                <div className="space-y-1.5">
+                  <div className="h-4 w-44 rounded bg-slate-200 animate-pulse" />
+                  <div className="h-3 w-56 rounded bg-slate-100 animate-pulse" />
+                </div>
+                <div className="h-6 w-20 rounded-md bg-slate-200 animate-pulse" />
+              </div>
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                {[0, 1, 2, 3].map(i => (
+                  <div key={i} className="rounded-xl border border-[#e2e8f0] bg-[#f8fafc] p-4 space-y-2">
+                    <div className="mx-auto w-9 h-9 rounded-lg bg-slate-200 animate-pulse" />
+                    <div className="mx-auto h-3 w-14 rounded bg-slate-200 animate-pulse" />
+                    <div className="mx-auto h-2.5 w-10 rounded bg-slate-100 animate-pulse" />
+                  </div>
+                ))}
+              </div>
+              <div className="space-y-1.5">
+                <div className="flex justify-between">
+                  <div className="h-3 w-28 rounded bg-slate-200 animate-pulse" />
+                  <div className="h-3 w-24 rounded bg-slate-100 animate-pulse" />
+                </div>
+                <div className="h-2.5 w-full rounded-full bg-slate-200 animate-pulse" />
+              </div>
+            </div>
+          </div>
+
+          {/* Middle Row: Upload & My Files Skeleton */}
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            <div className="lg:col-span-5 flat-panel rounded-2xl p-6 space-y-4">
+              <div className="flex items-center gap-2.5">
+                <div className="h-8 w-8 rounded-lg bg-[#eef2ff] animate-pulse" />
+                <div className="space-y-1.5">
+                  <div className="h-4 w-36 rounded bg-slate-200 animate-pulse" />
+                  <div className="h-3 w-44 rounded bg-slate-100 animate-pulse" />
+                </div>
+              </div>
+              <div className="space-y-3">
+                <div className="h-10 w-full rounded-xl bg-slate-100 animate-pulse" />
+                <div className="h-10 w-full rounded-xl bg-slate-100 animate-pulse" />
+              </div>
+              <div className="h-28 w-full rounded-xl border-2 border-dashed border-[#e2e8f0] bg-[#f8fafc] animate-pulse" />
+              <div className="h-10 w-full rounded-xl brand-gradient opacity-70 animate-pulse" />
+            </div>
+
+            <div className="lg:col-span-7 flat-panel rounded-2xl p-6 space-y-4">
+              <div className="flex items-center gap-2.5">
+                <div className="h-8 w-8 rounded-lg bg-emerald-50 animate-pulse" />
+                <div className="space-y-1.5">
+                  <div className="h-4 w-36 rounded bg-slate-200 animate-pulse" />
+                  <div className="h-3 w-32 rounded bg-slate-100 animate-pulse" />
+                </div>
+              </div>
+              <div className="space-y-2.5">
+                {[0, 1, 2].map(i => (
+                  <div
+                    key={i}
+                    className="rounded-xl border border-[#e2e8f0] bg-[#f8fafc] p-4 flex items-center justify-between gap-3"
+                  >
+                    <div className="space-y-2 flex-1">
+                      <div className="h-4 w-48 rounded bg-slate-200 animate-pulse" />
+                      <div className="h-3 w-32 rounded bg-slate-100 animate-pulse" />
+                    </div>
+                    <div className="h-8 w-24 rounded-lg bg-slate-200 animate-pulse" />
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </main>
       </div>
     );
   }
