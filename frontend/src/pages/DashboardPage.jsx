@@ -25,6 +25,7 @@ import {
   Ban,
   Unlock
 } from 'lucide-react';
+import { DotLottieReact } from '@lottiefiles/dotlottie-react';
 import { auth, db } from '../lib/firebase';
 import { sha256 } from '../lib/core';
 import { decryptText, encryptText, fetchFile, storeFile, text } from '../lib/storage';
@@ -59,6 +60,7 @@ export default function DashboardPage() {
   const [staffMsg, setStaffMsg] = useState('');
 
   const [isProcessing, setIsProcessing] = useState(false);
+  const [uploadStage, setUploadStage] = useState('idle'); // 'idle' | 'uploading' | 'done'
   const [activeBlock, setActiveBlock] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
 
@@ -273,7 +275,9 @@ export default function DashboardPage() {
   const processFile = async file => {
     if (!file) return;
     setIsProcessing(true);
+    setUploadStage('uploading');
     setActiveBlock(0);
+    const minUploadDelay = new Promise(resolve => setTimeout(resolve, 1800));
     try {
       const key = await myKey();
       const cleanJwt = jwt.trim();
@@ -297,9 +301,14 @@ export default function DashboardPage() {
       progress(`Stored. Transaction: ${txHash}`);
       await showMine(uid);
       if (me.role === 'admin') await showFiles();
+      await minUploadDelay;
+      setUploadStage('done');
+      await new Promise(resolve => setTimeout(resolve, 2400));
+      setUploadStage('idle');
     } catch (err) {
       progress(err.shortMessage || err.message);
       setActiveBlock(0);
+      setUploadStage('idle');
     } finally {
       setIsProcessing(false);
       if (fileInputRef.current) fileInputRef.current.value = '';
@@ -627,8 +636,55 @@ export default function DashboardPage() {
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.35, delay: 0.1 }}
-            className="lg:col-span-5 flat-panel rounded-2xl p-6 space-y-4"
+            className="lg:col-span-5 flat-panel rounded-2xl p-6 space-y-4 relative overflow-hidden"
           >
+            {/* Lottie Upload & Done Animation Overlay */}
+            <AnimatePresence>
+              {uploadStage !== 'idle' && (
+                <motion.div
+                  key={uploadStage}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.25 }}
+                  className="absolute inset-0 z-30 bg-white/95 backdrop-blur-sm flex flex-col items-center justify-center p-6 text-center"
+                >
+                  {uploadStage === 'uploading' ? (
+                    <>
+                      <div className="w-52 h-52 sm:w-56 sm:h-56">
+                        <DotLottieReact
+                          src="https://lottie.host/a075f82e-4e45-4daf-86d8-7c07340e6365/1A24NWdxIw.json"
+                          loop
+                          autoplay
+                        />
+                      </div>
+                      <p className="text-sm font-display font-bold text-slate-900 mt-2">
+                        Encrypting & Uploading File
+                      </p>
+                      <p className="text-xs font-mono text-sky-600 mt-1 max-w-xs break-words">
+                        {fileMsg || 'Splitting into 4 AES-256-GCM shards...'}
+                      </p>
+                    </>
+                  ) : (
+                    <>
+                      <div className="w-52 h-52 sm:w-56 sm:h-56">
+                        <DotLottieReact
+                          src="https://lottie.host/fe975d35-f08f-4214-b4fe-c0a4043c2ced/K16DswVejH.json"
+                          loop={false}
+                          autoplay
+                        />
+                      </div>
+                      <p className="text-sm font-display font-bold text-emerald-700 mt-2">
+                        Upload Complete!
+                      </p>
+                      <p className="text-xs font-mono text-slate-500 mt-1">
+                        Encrypted & anchored on TRON Shasta
+                      </p>
+                    </>
+                  )}
+                </motion.div>
+              )}
+            </AnimatePresence>
             <div className="flex items-center gap-2.5">
               <div className="p-2 rounded-lg bg-slate-100 border border-slate-200">
                 <Lock className="w-4 h-4 text-slate-800" />
