@@ -379,8 +379,8 @@ export default function DashboardPage() {
     return (
       <div className="min-h-screen bg-[#f8fafc] flex items-center justify-center">
         <div className="flex flex-col items-center gap-3">
-          <Loader2 className="w-8 h-8 text-blue-600 animate-spin" />
-          <span className="text-xs font-mono text-slate-500 tracking-wider uppercase">
+          <Loader2 className="w-8 h-8 text-[#4f46e5] animate-spin" />
+          <span className="text-xs font-mono text-[#475569] tracking-wider uppercase">
             Synchronizing Vault...
           </span>
         </div>
@@ -389,40 +389,37 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#f8fafc] text-slate-900">
+    <div className="min-h-screen bg-[#f8fafc] text-[#0f172a]">
       {/* Top Navigation Bar */}
-      <header className="sticky top-0 z-30 border-b border-slate-200 bg-white">
+      <header className="sticky top-0 z-30 border-b border-[#e2e8f0] bg-[#ffffff] shadow-[0_2px_10px_rgba(15,23,42,0.03)]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
           <div className="flex items-center gap-3">
-            <div className="h-9 w-9 rounded-lg bg-blue-600 flex items-center justify-center">
-              <Shield className="w-4 h-4 text-white" />
+            <div className="h-9 w-9 rounded-lg brand-gradient flex items-center justify-center shadow-sm">
+              <Shield className="w-4 h-4 text-[#ffffff]" />
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <span className="font-display font-bold text-base tracking-tight text-slate-900">
+                <span className="font-display font-bold text-base tracking-tight text-[#0f172a]">
                   BlockVault
                 </span>
-                <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-slate-100 text-slate-700 border border-slate-200">
-                  v8
-                </span>
               </div>
-              <p className="text-[11px] text-slate-500 hidden sm:block">
+              <p className="text-[11px] text-[#475569] hidden sm:block">
                 AES-256 • 4-Block IPFS • TRON Shasta
               </p>
             </div>
           </div>
 
           <div className="flex items-center gap-3">
-            <div className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-lg bg-slate-50 border border-slate-200 text-xs">
-              <span className="h-2 w-2 rounded-full bg-emerald-500" />
-              <span className="text-slate-700 font-medium">{me.email}</span>
+            <div className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[#f8fafc] border border-[#e2e8f0] text-xs">
+              <span className="h-2 w-2 rounded-full bg-[#10b981]" />
+              <span className="text-[#0f172a] font-medium">{me.email}</span>
               <span
                 className={`px-2 py-0.5 rounded text-[10px] font-semibold uppercase tracking-wider ${
                   me.role === 'admin'
-                    ? 'bg-slate-900 text-white'
+                    ? 'brand-gradient text-[#ffffff]'
                     : me.role === 'moderator'
-                    ? 'bg-amber-100 text-amber-800 border border-amber-200'
-                    : 'bg-blue-50 text-blue-700 border border-blue-200'
+                    ? 'bg-[#fef08a] text-[#854d0e] border border-[#fde047]'
+                    : 'bg-[#eef2ff] text-[#4f46e5] border border-[#4f46e5]/30'
                 }`}
               >
                 {me.role}
@@ -454,35 +451,38 @@ export default function DashboardPage() {
               label: 'Encrypted Files',
               value: String(myFiles.length),
               sub: '4-block sharded',
-              accent: 'text-blue-600'
+              accent: 'text-[#0f172a]'
             },
             {
               label: 'Vault Volume',
               value: formatBytes(myFiles.reduce((acc, f) => acc + (f.size || 0), 0)),
               sub: 'IPFS Pinata pinned',
-              accent: 'text-emerald-600'
+              accent: 'text-[#059669]'
             },
             {
               label: 'Cipher Suite',
               value: 'AES-256-GCM',
-              sub: 'Zero-knowledge client',
-              accent: 'text-slate-900'
+              sub: 'Client-side encryption',
+              accent: 'text-[#059669]'
             },
             {
               label: 'Settlement Layer',
               value: 'TRON Shasta',
               sub: me.tronlink ? 'TronLink linked' : 'Wallet standby',
-              accent: 'text-teal-700'
+              accent: 'text-[#0f172a]'
             }
           ].map(stat => (
-            <div key={stat.label} className="flat-panel rounded-xl px-4 py-3.5">
-              <div className="text-[11px] uppercase tracking-wider text-slate-500 font-semibold">
+            <div
+              key={stat.label}
+              className="flat-panel rounded-xl px-4 py-3.5 border-t-[3px] border-t-[#4f46e5]"
+            >
+              <div className="text-[11px] uppercase tracking-wider text-[#475569] font-semibold">
                 {stat.label}
               </div>
               <div className={`text-lg sm:text-xl font-display font-bold mt-1 ${stat.accent}`}>
                 {stat.value}
               </div>
-              <div className="text-[11px] text-slate-400 mt-0.5">{stat.sub}</div>
+              <div className="text-[11px] text-[#475569] mt-0.5">{stat.sub}</div>
             </div>
           ))}
         </motion.div>
@@ -498,46 +498,58 @@ export default function DashboardPage() {
           >
             <div>
               <div className="flex items-center gap-2.5 mb-4">
-                <div className="p-2 rounded-lg bg-blue-50 border border-blue-200">
-                  <Wallet className="w-4 h-4 text-blue-600" />
+                <div className="p-2 rounded-lg bg-[#eef2ff] border border-[#4f46e5]/20">
+                  <Wallet className="w-4 h-4 text-[#4f46e5]" />
                 </div>
                 <div>
-                  <h2 className="text-base font-bold text-slate-900">Connected Wallets</h2>
-                  <p className="text-xs text-slate-500">Shasta Testnet & EVM Identity</p>
+                  <h2 className="text-base font-bold text-[#0f172a]">Connected Wallets</h2>
+                  <p className="text-xs text-[#475569]">Shasta Testnet & EVM Identity</p>
                 </div>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-4">
                 <button
                   onClick={connectMetaMask}
-                  className="flat-card rounded-xl p-4 text-left hover:border-amber-400 transition-colors cursor-pointer"
+                  className={`rounded-xl p-4 text-left transition-colors cursor-pointer ${
+                    me.metamask
+                      ? 'bg-[#eef2ff] border-[1.5px] border-[#4f46e5]'
+                      : 'bg-[#ffffff] border border-[#e2e8f0] hover:border-[#4f46e5]/50'
+                  }`}
                 >
                   <div className="flex items-center justify-between mb-2">
-                    <span className="text-xs font-bold text-amber-700">MetaMask</span>
+                    <span className={`text-xs font-bold ${me.metamask ? 'text-[#4338ca]' : 'text-[#0f172a]'}`}>
+                      MetaMask
+                    </span>
                     <span
                       className={`h-2 w-2 rounded-full ${
-                        me.metamask ? 'bg-emerald-500' : 'bg-slate-300'
+                        me.metamask ? 'bg-[#10b981]' : 'bg-slate-300'
                       }`}
                     />
                   </div>
-                  <div className="text-[11px] font-mono text-slate-600 truncate">
+                  <div className="text-[11px] font-mono text-[#475569] truncate">
                     {me.metamask ? truncateMiddle(me.metamask, 7, 5) : 'Click to connect'}
                   </div>
                 </button>
 
                 <button
                   onClick={connectTronLink}
-                  className="flat-card rounded-xl p-4 text-left hover:border-blue-500 transition-colors cursor-pointer"
+                  className={`rounded-xl p-4 text-left transition-colors cursor-pointer ${
+                    me.tronlink
+                      ? 'bg-[#eef2ff] border-[1.5px] border-[#4f46e5]'
+                      : 'bg-[#ffffff] border border-[#e2e8f0] hover:border-[#4f46e5]/50'
+                  }`}
                 >
                   <div className="flex items-center justify-between mb-2">
-                    <span className="text-xs font-bold text-blue-700">TronLink</span>
+                    <span className={`text-xs font-bold ${me.tronlink ? 'text-[#4338ca]' : 'text-[#0f172a]'}`}>
+                      TronLink
+                    </span>
                     <span
                       className={`h-2 w-2 rounded-full ${
-                        me.tronlink ? 'bg-emerald-500' : 'bg-slate-300'
+                        me.tronlink ? 'bg-[#10b981]' : 'bg-slate-300'
                       }`}
                     />
                   </div>
-                  <div className="text-[11px] font-mono text-slate-600 truncate">
+                  <div className="text-[11px] font-mono text-[#475569] truncate">
                     {me.tronlink ? truncateMiddle(me.tronlink, 7, 5) : 'Click to connect'}
                   </div>
                 </button>
@@ -548,7 +560,7 @@ export default function DashboardPage() {
               <motion.p
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                className="mt-4 text-xs font-mono text-blue-700 bg-blue-50 border border-blue-200 rounded-lg px-3 py-2 break-all"
+                className="mt-4 text-xs font-mono text-[#4338ca] bg-[#eef2ff] border border-[#4f46e5]/30 rounded-lg px-3 py-2 break-all"
               >
                 {walletMsg}
               </motion.p>
@@ -564,19 +576,19 @@ export default function DashboardPage() {
           >
             <div className="flex items-center justify-between">
               <div>
-                <h2 className="text-base font-bold text-slate-900 flex items-center gap-2">
-                  <Boxes className="w-4 h-4 text-blue-600" />
+                <h2 className="text-base font-bold text-[#0f172a] flex items-center gap-2">
+                  <Boxes className="w-4 h-4 text-[#4f46e5]" />
                   4-Block Sharding Pipeline
                 </h2>
-                <p className="text-xs text-slate-500 mt-0.5">
+                <p className="text-xs text-[#475569] mt-0.5">
                   Real-time status of AES-256 encrypted file shards
                 </p>
               </div>
               <span
                 className={`text-[11px] font-mono px-2.5 py-1 rounded-md border font-semibold ${
                   isProcessing
-                    ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
-                    : 'bg-slate-100 text-slate-600 border-slate-200'
+                    ? 'bg-emerald-50 text-[#059669] border-[#10b981]/30'
+                    : 'bg-[#fef08a] text-[#854d0e] border-[#fde047]'
                 }`}
               >
                 {isProcessing ? `BLOCK ${activeBlock || 1}/4 ACTIVE` : 'STANDBY'}
@@ -592,25 +604,27 @@ export default function DashboardPage() {
                     key={num}
                     animate={{
                       scale: current ? 1.03 : 1,
-                      borderColor: lit ? '#059669' : '#e2e8f0'
+                      borderColor: lit ? '#4f46e5' : '#cbd5e1'
                     }}
-                    className={`rounded-xl p-4 border text-center transition-colors ${
-                      lit ? 'bg-emerald-50' : 'bg-slate-50'
+                    className={`rounded-xl p-4 border text-center transition-all ${
+                      lit
+                        ? 'bg-[#eef2ff] shadow-[0_0_0_3px_rgba(79,70,229,0.12)]'
+                        : 'bg-[#f8fafc]'
                     }`}
                   >
                     <div
                       className={`mx-auto w-9 h-9 rounded-lg flex items-center justify-center mb-2 font-mono text-xs font-bold ${
                         lit
-                          ? 'bg-emerald-600 text-white'
-                          : 'bg-white border border-slate-200 text-slate-500'
+                          ? 'brand-gradient text-[#ffffff]'
+                          : 'bg-[#ffffff] border border-[#cbd5e1] text-[#475569]'
                       }`}
                     >
                       0{num}
                     </div>
-                    <div className={`text-xs font-semibold ${lit ? 'text-emerald-800' : 'text-slate-700'}`}>
+                    <div className={`text-xs font-semibold ${lit ? 'text-[#4338ca]' : 'text-[#0f172a]'}`}>
                       Shard 0{num}
                     </div>
-                    <div className="text-[10px] font-mono text-slate-500 mt-0.5">
+                    <div className={`text-[10px] font-mono mt-0.5 ${lit ? 'text-[#4338ca]' : 'text-[#475569]'}`}>
                       {lit ? 'VERIFIED' : 'READY'}
                     </div>
                   </motion.div>
@@ -618,12 +632,12 @@ export default function DashboardPage() {
               })}
             </div>
 
-            <div className="w-full h-2 bg-slate-100 rounded-full overflow-hidden border border-slate-200">
+            <div className="w-full h-2 bg-slate-100 rounded-full overflow-hidden border border-[#e2e8f0]">
               <motion.div
                 initial={false}
                 animate={{ width: `${(activeBlock / 4) * 100}%` }}
                 transition={{ duration: 0.3 }}
-                className="h-full bg-emerald-600"
+                className="h-full brand-gradient"
               />
             </div>
           </motion.section>
@@ -658,10 +672,10 @@ export default function DashboardPage() {
                           autoplay
                         />
                       </div>
-                      <p className="text-sm font-display font-bold text-slate-900 mt-2">
+                      <p className="text-sm font-display font-bold text-[#0f172a] mt-2">
                         Encrypting & Uploading File
                       </p>
-                      <p className="text-xs font-mono text-sky-600 mt-1 max-w-xs break-words">
+                      <p className="text-xs font-mono text-[#4f46e5] mt-1 max-w-xs break-words">
                         {fileMsg || 'Splitting into 4 AES-256-GCM shards...'}
                       </p>
                     </>
@@ -674,10 +688,10 @@ export default function DashboardPage() {
                           autoplay
                         />
                       </div>
-                      <p className="text-sm font-display font-bold text-emerald-700 mt-2">
+                      <p className="text-sm font-display font-bold text-[#059669] mt-2">
                         Upload Complete!
                       </p>
-                      <p className="text-xs font-mono text-slate-500 mt-1">
+                      <p className="text-xs font-mono text-[#475569] mt-1">
                         Encrypted & anchored on TRON Shasta
                       </p>
                     </>
@@ -686,12 +700,12 @@ export default function DashboardPage() {
               )}
             </AnimatePresence>
             <div className="flex items-center gap-2.5">
-              <div className="p-2 rounded-lg bg-slate-100 border border-slate-200">
-                <Lock className="w-4 h-4 text-slate-800" />
+              <div className="p-2 rounded-lg bg-[#eef2ff] border border-[#4f46e5]/20">
+                <Lock className="w-4 h-4 text-[#4f46e5]" />
               </div>
               <div>
-                <h2 className="text-base font-bold text-slate-900">Encrypt & Store File</h2>
-                <p className="text-xs text-slate-500">Max 20 MB • Split into 4 IPFS blocks</p>
+                <h2 className="text-base font-bold text-[#0f172a]">Encrypt & Store File</h2>
+                <p className="text-xs text-[#475569]">Max 20 MB • Split into 4 IPFS blocks</p>
               </div>
             </div>
 
@@ -768,10 +782,10 @@ export default function DashboardPage() {
                 }
               }}
               onClick={() => !isProcessing && fileInputRef.current?.click()}
-              className={`rounded-xl border-2 border-dashed p-6 text-center transition-colors cursor-pointer ${
+              className={`rounded-xl border-2 border-dashed p-5 text-center transition-colors cursor-pointer ${
                 isDragging
-                  ? 'border-blue-600 bg-blue-50'
-                  : 'border-slate-300 hover:border-blue-500 bg-slate-50'
+                  ? 'border-[#4f46e5] bg-[#eef2ff]'
+                  : 'border-[#cbd5e1] hover:border-[#4f46e5] bg-[#f8fafc]'
               } ${isProcessing ? 'opacity-60 pointer-events-none' : ''}`}
             >
               <input
@@ -782,17 +796,27 @@ export default function DashboardPage() {
                 onChange={e => processFile(e.target.files?.[0])}
               />
               {isProcessing ? (
-                <Loader2 className="w-8 h-8 text-blue-600 animate-spin mx-auto mb-2" />
+                <Loader2 className="w-8 h-8 text-[#4f46e5] animate-spin mx-auto mb-2" />
               ) : (
-                <UploadCloud className="w-8 h-8 text-blue-600 mx-auto mb-2" />
+                <UploadCloud className="w-8 h-8 text-[#4f46e5] mx-auto mb-2" />
               )}
-              <p className="text-sm font-semibold text-slate-900">
+              <p className="text-sm font-semibold text-[#0f172a]">
                 {isProcessing ? 'Processing Cryptographic Pipeline...' : 'Drop file or click to upload'}
               </p>
-              <p className="text-xs text-slate-500 mt-1">
+              <p className="text-xs text-[#475569] mt-1">
                 Encrypted locally before leaving your browser
               </p>
             </div>
+
+            <button
+              type="button"
+              disabled={isProcessing}
+              onClick={() => !isProcessing && fileInputRef.current?.click()}
+              className="w-full py-2.5 px-4 rounded-xl brand-gradient-btn font-semibold text-sm text-[#ffffff] flex items-center justify-center gap-2 cursor-pointer disabled:opacity-60"
+            >
+              <UploadCloud className="w-4 h-4 text-[#ffffff]" />
+              Encrypt & Store File
+            </button>
 
             <AnimatePresence mode="wait">
               {fileMsg && (
@@ -800,7 +824,7 @@ export default function DashboardPage() {
                   key={fileMsg}
                   initial={{ opacity: 0, y: 4 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className="rounded-lg bg-blue-50 border border-blue-200 px-3.5 py-2.5 text-xs text-blue-800 font-mono break-all"
+                  className="rounded-lg bg-[#eef2ff] border border-[#4f46e5]/30 px-3.5 py-2.5 text-xs text-[#4338ca] font-mono break-all"
                 >
                   {fileMsg}
                 </motion.div>
@@ -817,12 +841,12 @@ export default function DashboardPage() {
           >
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-2.5">
-                <div className="p-2 rounded-lg bg-emerald-50 border border-emerald-200">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                <div className="p-2 rounded-lg bg-emerald-50 border border-[#10b981]/30">
+                  <CheckCircle2 className="w-4 h-4 text-[#059669]" />
                 </div>
                 <div>
-                  <h2 className="text-base font-bold text-slate-900">My Encrypted Files</h2>
-                  <p className="text-xs text-slate-500">
+                  <h2 className="text-base font-bold text-[#0f172a]">My Encrypted Files</h2>
+                  <p className="text-xs text-[#475569]">
                     {myFiles.length} {myFiles.length === 1 ? 'record' : 'records'} anchored on-chain
                   </p>
                 </div>
@@ -830,10 +854,10 @@ export default function DashboardPage() {
             </div>
 
             {myFiles.length === 0 ? (
-              <div className="flex-1 flex flex-col items-center justify-center py-12 text-center border border-dashed border-slate-200 rounded-xl bg-slate-50">
-                <Database className="w-8 h-8 text-slate-400 mb-2" />
-                <p className="text-sm font-medium text-slate-600">No files yet.</p>
-                <p className="text-xs text-slate-400 mt-1">
+              <div className="flex-1 flex flex-col items-center justify-center py-12 text-center border border-dashed border-[#e2e8f0] rounded-xl bg-[#f8fafc]">
+                <Database className="w-8 h-8 text-[#475569] mb-2" />
+                <p className="text-sm font-medium text-[#0f172a]">No files yet.</p>
+                <p className="text-xs text-[#475569] mt-1">
                   Enter your hash key & Pinata JWT to upload your first file.
                 </p>
               </div>
@@ -845,16 +869,16 @@ export default function DashboardPage() {
                     initial={{ opacity: 0, x: -8 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: idx * 0.03 }}
-                    className="flat-card rounded-xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 hover:border-blue-300 transition-colors"
+                    className="flat-card rounded-xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 hover:border-[#4f46e5]/50 transition-colors"
                   >
                     <div className="min-w-0">
-                      <div className="font-semibold text-sm text-slate-900 truncate flex items-center gap-1.5">
+                      <div className="font-semibold text-sm text-[#0f172a] truncate flex items-center gap-1.5">
                         {f.fileName?.startsWith('enc:') ? (
                           decryptedNames[f.id] ? (
                             decryptedNames[f.id]
                           ) : (
-                            <span className="inline-flex items-center gap-1.5 text-slate-500 font-mono text-xs">
-                              <Lock className="w-3.5 h-3.5 text-blue-600" />
+                            <span className="inline-flex items-center gap-1.5 text-[#475569] font-mono text-xs">
+                              <Lock className="w-3.5 h-3.5 text-[#059669]" />
                               [Encrypted Filename — enter hash key to reveal]
                             </span>
                           )
@@ -862,10 +886,10 @@ export default function DashboardPage() {
                           f.fileName
                         )}
                       </div>
-                      <div className="flex flex-wrap items-center gap-2 mt-1 text-[11px] font-mono text-slate-500">
+                      <div className="flex flex-wrap items-center gap-2 mt-1 text-[11px] font-mono text-[#475569]">
                         <span>{formatBytes(f.size)}</span>
                         {f.txHash && (
-                          <span className="px-2 py-0.5 rounded bg-white border border-slate-200 text-blue-700">
+                          <span className="px-2 py-0.5 rounded bg-[#ffffff] border border-[#e2e8f0] text-[#4338ca]">
                             tx: {truncateMiddle(f.txHash, 8, 6)}
                           </span>
                         )}
@@ -875,7 +899,7 @@ export default function DashboardPage() {
                     <button
                       disabled={isProcessing}
                       onClick={() => handleDownload(f)}
-                      className="shrink-0 inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold transition-colors cursor-pointer disabled:opacity-50"
+                      className="shrink-0 inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-lg brand-gradient-btn text-xs font-semibold cursor-pointer disabled:opacity-50"
                     >
                       <Download className="w-3.5 h-3.5" />
                       Download
@@ -897,18 +921,18 @@ export default function DashboardPage() {
           >
             <div className="flex flex-wrap items-center justify-between gap-3">
               <div className="flex items-center gap-2.5">
-                <div className="p-2 rounded-lg bg-amber-50 border border-amber-200">
-                  <Users className="w-4 h-4 text-amber-700" />
+                <div className="p-2 rounded-lg bg-[#eef2ff] border border-[#4f46e5]/20">
+                  <Users className="w-4 h-4 text-[#4f46e5]" />
                 </div>
                 <div>
-                  <h2 className="text-base font-bold text-slate-900">Manage Users</h2>
-                  <p className="text-xs text-slate-500">
+                  <h2 className="text-base font-bold text-[#0f172a]">Manage Users</h2>
+                  <p className="text-xs text-[#475569]">
                     Role governance & access control ({userList.length} accounts)
                   </p>
                 </div>
               </div>
               {staffMsg && (
-                <span className="text-xs font-mono text-emerald-700 bg-emerald-50 border border-emerald-200 px-3 py-1 rounded-md">
+                <span className="text-xs font-mono text-[#059669] bg-emerald-50 border border-[#10b981]/30 px-3 py-1 rounded-md">
                   {staffMsg}
                 </span>
               )}
@@ -924,9 +948,15 @@ export default function DashboardPage() {
                   >
                     <div className="space-y-1.5">
                       <div className="flex items-center justify-between gap-2">
-                        <span className="font-semibold text-sm text-slate-900 truncate">{u.name}</span>
+                        <span className="font-semibold text-sm text-[#0f172a] truncate">{u.name}</span>
                         <div className="flex items-center gap-1.5 shrink-0">
-                          <span className="text-[10px] font-mono uppercase px-2 py-0.5 rounded bg-slate-200 text-slate-800 font-semibold">
+                          <span
+                            className={`text-[10px] font-mono uppercase px-2 py-0.5 rounded font-semibold ${
+                              u.role === 'admin'
+                                ? 'brand-gradient text-[#ffffff]'
+                                : 'bg-[#eef2ff] text-[#4338ca] border border-[#4f46e5]/20'
+                            }`}
+                          >
                             {u.role}
                           </span>
                           {u.blocked && (
@@ -935,13 +965,13 @@ export default function DashboardPage() {
                             </span>
                           )}
                           {u.adminRequest && u.role !== 'admin' && (
-                            <span className="text-[10px] font-mono uppercase px-2 py-0.5 rounded bg-blue-100 text-blue-700 border border-blue-200 font-semibold">
+                            <span className="text-[10px] font-mono uppercase px-2 py-0.5 rounded bg-[#fef08a] text-[#854d0e] border border-[#fde047] font-semibold">
                               ASKS FOR ADMIN
                             </span>
                           )}
                         </div>
                       </div>
-                      <p className="text-xs text-slate-500 truncate">{u.email}</p>
+                      <p className="text-xs text-[#475569] truncate">{u.email}</p>
                       {(u.metamask || u.tronlink) && (
                         <div className="flex flex-wrap gap-1.5 pt-1 text-[10px] font-mono text-slate-600">
                           {u.metamask && (
@@ -1004,12 +1034,12 @@ export default function DashboardPage() {
           >
             <div className="flex items-center justify-between gap-3">
               <div className="flex items-center gap-2.5">
-                <div className="p-2 rounded-lg bg-slate-100 border border-slate-200">
-                  <Database className="w-4 h-4 text-slate-800" />
+                <div className="p-2 rounded-lg bg-[#eef2ff] border border-[#4f46e5]/20">
+                  <Database className="w-4 h-4 text-[#4f46e5]" />
                 </div>
                 <div>
-                  <h2 className="text-base font-bold text-slate-900">Block Records (Admin Only)</h2>
-                  <p className="text-xs text-slate-500">
+                  <h2 className="text-base font-bold text-[#0f172a]">Block Records (Admin Only)</h2>
+                  <p className="text-xs text-[#475569]">
                     On-chain 4-block shard hashes & IPFS CIDs
                   </p>
                 </div>
@@ -1017,7 +1047,7 @@ export default function DashboardPage() {
 
               <button
                 onClick={() => showFiles().catch(err => setFileMsg(err.message))}
-                className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-slate-900 hover:bg-slate-800 text-xs font-semibold text-white transition-colors cursor-pointer"
+                className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg brand-gradient-btn text-xs font-semibold cursor-pointer"
               >
                 <RefreshCw className="w-3.5 h-3.5" />
                 Refresh
@@ -1036,25 +1066,25 @@ export default function DashboardPage() {
                         <div>
                           <div className="text-sm font-bold text-slate-900 flex items-center gap-1.5">
                             {f.fileName?.startsWith('enc:') ? (
-                              <span className="inline-flex items-center gap-1.5 text-slate-700 font-mono text-xs">
-                                <Lock className="w-3.5 h-3.5 text-blue-600" />
+                              <span className="inline-flex items-center gap-1.5 text-[#475569] font-mono text-xs">
+                                <Lock className="w-3.5 h-3.5 text-[#059669]" />
                                 [Encrypted Filename]
                               </span>
                             ) : (
                               f.fileName
                             )}
                           </div>
-                          <div className="text-xs text-slate-500 mt-0.5">
+                          <div className="text-xs text-[#475569] mt-0.5">
                             {f.email} • {f.size} bytes • {f.parts?.length || 0} block(s)
                           </div>
                         </div>
                         {f.txHash && (
                           <button
                             onClick={() => handleCopyText(f.txHash, `tx-${f.id}`)}
-                            className="inline-flex items-center gap-1.5 px-3 py-1 rounded-md bg-white border border-slate-200 text-[11px] font-mono text-blue-700 cursor-pointer hover:border-blue-300"
+                            className="inline-flex items-center gap-1.5 px-3 py-1 rounded-md bg-[#ffffff] border border-[#e2e8f0] text-[11px] font-mono text-[#4338ca] cursor-pointer hover:border-[#4f46e5]/50"
                           >
                             {copiedId === `tx-${f.id}` ? (
-                              <Check className="w-3 h-3 text-emerald-600" />
+                              <Check className="w-3 h-3 text-[#059669]" />
                             ) : (
                               <Copy className="w-3 h-3" />
                             )}
@@ -1071,24 +1101,24 @@ export default function DashboardPage() {
                           return (
                             <div
                               key={i}
-                              className="rounded-lg bg-white border border-slate-200 p-3.5 space-y-1.5 text-[11px]"
+                              className="rounded-lg bg-[#ffffff] border border-[#e2e8f0] p-3.5 space-y-1.5 text-[11px]"
                             >
                               <div className="flex items-center justify-between">
-                                <span className="font-bold text-blue-700">Block {i + 1}</span>
-                                <span className="font-mono text-slate-700 font-semibold">
+                                <span className="font-bold text-[#4f46e5]">Block {i + 1}</span>
+                                <span className="font-mono text-[#0f172a] font-semibold">
                                   {((p.bytes / f.size) * 100).toFixed(2)}%
                                 </span>
                               </div>
-                              <div className="text-slate-700">
+                              <div className="text-[#0f172a]">
                                 {p.bytes} bytes ({(p.bytes / 1024).toFixed(2)} KB)
                               </div>
-                              <div className="text-slate-500">
+                              <div className="text-[#475569]">
                                 Bytes {blockStart} to {blockEnd}
                               </div>
-                              <div className="pt-1 border-t border-slate-100 font-mono text-[10px] text-slate-600 break-all">
+                              <div className="pt-1 border-t border-slate-100 font-mono text-[10px] text-[#475569] break-all">
                                 <span className="text-slate-400">SHA-256:</span> {p.hash}
                               </div>
-                              <div className="font-mono text-[10px] text-emerald-700 break-all">
+                              <div className="font-mono text-[10px] text-[#059669] break-all">
                                 <span className="text-slate-400">IPFS CID:</span>{' '}
                                 {p.cid || 'not stored'}
                               </div>
