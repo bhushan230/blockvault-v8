@@ -1,0 +1,78 @@
+// BlockVault — Firestore Security Rules
+// Deploy: firebase deploy --only firestore:rules
+// CRITICAL: Replace the default open rules with these before going live.
+
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ── Helper: check if the requester is an admin ──────────────────────
+    function isAdmin() {
+      return request.auth != null &&
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+
+    // ── keys collection ──────────────────────────────────────────────────
+    // SHA-256(hashKey) → {uid, email}
+    // Reads are blocked entirely from client — only the owner can write their own key entry.
+    // Login lookups should be migrated to a Cloud Function for server-side rate limiting.
+    match /keys/{keyId} {
+      allow read:  if false; // No client-side reads; use Cloud Function
+      allow write: if request.auth != null
+                   && request.resource.data.uid == request.auth.uid;
+      allow delete: if request.auth != null
+                    && resource.data.uid == request.auth.uid;
+    }
+
+    // ── users collection ─────────────────────────────────────────────────
+    match /users/{userId} {
+      // Any authenticated + email-verified user can read their own profile
+      allow read: if request.auth != null
+                  && request.auth.uid == userId
+                  && request.auth.token.email_verified == true;
+
+      // Admins can read all user profiles
+      allow read: if isAdmin();
+
+      // User can create their own profile — role MUST be 'user', blocked MUST be false
+      allow create: if request.auth != null
+                    && request.auth.uid == userId
+                    && request.resource.data.role == 'user'
+                    && request.resource.data.blocked == false
+                    && request.resource.data.keySet == false;
+
+      // Users can update their own profile but CANNOT change role, blocked, or adminRequest
+      allow update: if request.auth != null
+                    && request.auth.uid == userId
+                    && !('role' in request.resource.data.diff(resource.data).affectedKeys())
+                    && !('blocked' in request.resource.data.diff(resource.data).affectedKeys());
+
+      // Admins can update any user (role, blocked status, etc.)
+      allow update: if isAdmin();
+
+      // Nobody can delete a user document from the client
+      allow delete: if false;
+    }
+
+    // ── per-user file metadata ───────────────────────────────────────────
+    match /users/{userId}/myfiles/{fileId} {
+      allow read, write: if request.auth != null
+                         && request.auth.uid == userId
+                         && request.auth.token.email_verified == true;
+    }
+
+    // ── global files registry (admin view) ──────────────────────────────
+    match /files/{fileId} {
+      // Only admins can read the global file list
+      allow read: if isAdmin();
+
+      // Any authenticated verified user can write their own file entry
+      allow create: if request.auth != null
+                    && request.auth.token.email_verified == true
+                    && request.resource.data.uid == request.auth.uid;
+
+      // No updates or deletes from client
+      allow update, delete: if false;
+    }
+  }
+}

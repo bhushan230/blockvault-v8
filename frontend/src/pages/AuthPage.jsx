@@ -267,8 +267,14 @@ export default function AuthPage() {
     setLoginLoading(true);
     setLoginStatus({ kind: 'info', text: 'Checking...' });
     try {
-      const minDelay = new Promise(resolve => setTimeout(resolve, 3000));
+      // SEC: validate hash key format before any network call
       const cleanKey = loginKey.trim().toLowerCase();
+      if (!/^[0-9a-f]{64}$/.test(cleanKey)) {
+        setLoginStatus({ kind: 'error', text: 'Hash key must be exactly 64 hexadecimal characters.' });
+        setLoginLoading(false);
+        return;
+      }
+      const minDelay = new Promise(resolve => setTimeout(resolve, 3000));
       const id = await sha256(new TextEncoder().encode(cleanKey));
       const found = await db.collection('keys').doc(id).get();
       if (!found.exists) throw new Error('Unknown key');
@@ -327,6 +333,7 @@ export default function AuthPage() {
       setRegStep('verify');
       setRegStatus({ kind: 'info', text: 'Click the link in your email, then press the button.' });
     } catch (err) {
+      if (import.meta.env.DEV) console.error(err);
       setRegStatus({ kind: 'error', text: err.message });
     } finally {
       setRegLoading(false);
@@ -348,8 +355,15 @@ export default function AuthPage() {
       const key = await sha256(crypto.getRandomValues(new Uint8Array(32)));
       const masked = key.slice(0, 6) + '*'.repeat(20) + key.slice(-4);
       const id = await sha256(new TextEncoder().encode(key));
+      // SEC: write to Firestore FIRST; if updatePassword fails, user can retry (key doc is idempotent)
       await db.collection('keys').doc(id).set({ uid: user.uid, email: user.email });
-      await user.updatePassword(key);
+      try {
+        await user.updatePassword(key);
+      } catch (pwErr) {
+        // Rollback the keys doc so we don't create an orphan mapping
+        await db.collection('keys').doc(id).delete().catch(() => {});
+        throw pwErr;
+      }
       setFullKey(key);
       setMaskedKey(masked);
       await db.collection('users').doc(user.uid).update({ keySet: true });
@@ -362,6 +376,7 @@ export default function AuthPage() {
       setRegStep('result');
       setRegStatus({ kind: 'success', text: 'Account ready. Copy your hash key now, then sign in.' });
     } catch (err) {
+      if (import.meta.env.DEV) console.error(err);
       setRegStatus({ kind: 'error', text: err.message });
     } finally {
       setRegLoading(false);
