@@ -14,10 +14,11 @@ service cloud.firestore {
 
     // ── keys collection ──────────────────────────────────────────────────
     // SHA-256(hashKey) → {uid, email}
-    // Reads are blocked entirely from client — only the owner can write their own key entry.
-    // Login lookups should be migrated to a Cloud Function for server-side rate limiting.
+    // allow get permits single-doc lookup by SHA-256(hashKey) for login & myKey();
+    // allow list: if false prevents anyone from listing/enumerating all keys.
     match /keys/{keyId} {
-      allow read:  if false; // No client-side reads; use Cloud Function
+      allow get:   if true;
+      allow list:  if false;
       allow write: if request.auth != null
                    && request.resource.data.uid == request.auth.uid;
       allow delete: if request.auth != null
@@ -26,13 +27,12 @@ service cloud.firestore {
 
     // ── users collection ─────────────────────────────────────────────────
     match /users/{userId} {
-      // Any authenticated + email-verified user can read their own profile
-      allow read: if request.auth != null
-                  && request.auth.uid == userId
-                  && request.auth.token.email_verified == true;
+      // Any authenticated user can read their own profile (including during email verification resume)
+      allow read: if request.auth != null && request.auth.uid == userId;
 
-      // Admins can read all user profiles
-      allow read: if isAdmin();
+      // Admins and moderators can read all user profiles
+      allow read: if request.auth != null &&
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role in ['admin', 'moderator'];
 
       // User can create their own profile — role MUST be 'user', blocked MUST be false
       allow create: if request.auth != null
