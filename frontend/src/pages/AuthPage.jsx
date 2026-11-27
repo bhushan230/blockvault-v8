@@ -435,8 +435,8 @@ export default function AuthPage() {
                 className="space-y-6"
               >
                 <div className="space-y-3">
-                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-md bg-white/15 border border-white/20 text-xs font-mono text-white">
-                    <span className="h-2 w-2 rounded-full bg-emerald-300" />
+                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-md bg-[#fef08a]/10 border border-[#fef08a]/30 text-xs font-mono text-[#fef08a]">
+                    <span className="h-2 w-2 rounded-full bg-[#fef08a]" />
                     TRON SHASTA • CLIENT-SIDE ENCRYPTION
                   </div>
                   <h1 className="text-3xl xl:text-4xl font-display font-bold leading-[1.15] tracking-tight text-[#ffffff]">
@@ -474,8 +474,8 @@ export default function AuthPage() {
                 transition={{ duration: 0.22 }}
                 className="space-y-5"
               >
-                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-md bg-white/15 border border-white/20 text-xs font-mono text-[#ffffff]">
-                  <span className="h-2 w-2 rounded-full bg-emerald-300" />
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-md bg-[#fef08a]/10 border border-[#fef08a]/30 text-xs font-mono text-[#fef08a]">
+                  <span className="h-2 w-2 rounded-full bg-[#fef08a]" />
                   256-BIT KEY PROVISIONING
                 </div>
                 <h1 className="text-3xl xl:text-4xl font-display font-bold leading-[1.15] tracking-tight text-[#ffffff]">
@@ -492,7 +492,7 @@ export default function AuthPage() {
                   ].map(item => (
                     <div
                       key={item}
-                      className="rounded-xl bg-white/10 border border-white/15 px-4 py-2.5 text-xs font-mono text-[#e0e7ff]"
+                      className="rounded-xl bg-white/10 border border-white/15 px-4 py-2.5 text-xs font-mono text-[#f8fafc]"
                     >
                       {item}
                     </div>
