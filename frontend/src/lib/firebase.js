@@ -2,13 +2,19 @@ import firebase from 'firebase/compat/app';
 import 'firebase/compat/auth';
 import 'firebase/compat/firestore';
 
-// Preserved exact Firebase configuration from firebase-config.js
+// Firebase configuration loaded from Vite environment variables (see frontend/.env.example)
 const firebaseConfig = {
-  apiKey: "AIzaSyC6PGd4skGyvZZPTpTX6lnFjI0ZkbPbgwU",
-  authDomain: "blokchane.firebaseapp.com",
-  projectId: "blokchane",
-  appId: "1:582707929687:web:d8bb0d92b4017be6bb7912"
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+  appId: import.meta.env.VITE_FIREBASE_APP_ID
 };
+
+if (!firebaseConfig.apiKey || !firebaseConfig.projectId) {
+  throw new Error(
+    'Missing Firebase environment variables. Set VITE_FIREBASE_API_KEY, VITE_FIREBASE_AUTH_DOMAIN, VITE_FIREBASE_PROJECT_ID, and VITE_FIREBASE_APP_ID.'
+  );
+}
 
 if (!firebase.apps.length) {
   firebase.initializeApp(firebaseConfig);

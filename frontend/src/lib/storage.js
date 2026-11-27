@@ -24,10 +24,33 @@ const ABI = [
 export const MAX_SIZE = 20 * 1024 * 1024;
 export const text = s => new TextEncoder().encode(s);
 
-// The encryption key is derived from the user's hash key and is never stored
+// Legacy SHA-256 KDF kept for decrypting older files/filenames
 export async function aesKey(hashKey) {
   const raw = await crypto.subtle.digest("SHA-256", text("encrypt:" + hashKey));
   return crypto.subtle.importKey("raw", raw, "AES-GCM", false, ["encrypt", "decrypt"]);
+}
+
+// RFC 5869 HKDF key derivation for new encryptions (domain-separated from auth credential)
+export async function aesKeyHKDF(hashKey) {
+  const baseKey = await crypto.subtle.importKey(
+    "raw",
+    text(hashKey),
+    { name: "HKDF" },
+    false,
+    ["deriveKey"]
+  );
+  return crypto.subtle.deriveKey(
+    {
+      name: "HKDF",
+      hash: "SHA-256",
+      salt: text("blockvault-v8-encryption-salt"),
+      info: text("file-encryption-key")
+    },
+    baseKey,
+    { name: "AES-GCM", length: 256 },
+    false,
+    ["encrypt", "decrypt"]
+  );
 }
 
 export async function encrypt(key, data) {
@@ -41,7 +64,7 @@ export async function decrypt(key, data) {
 }
 
 export async function encryptText(hashKey, plainText) {
-  const key = await aesKey(hashKey);
+  const key = await aesKeyHKDF(hashKey);
   const iv = crypto.getRandomValues(new Uint8Array(12));
   const out = await crypto.subtle.encrypt({ name: "AES-GCM", iv }, key, text(plainText));
   const combined = new Uint8Array(iv.length + out.byteLength);
@@ -49,15 +72,18 @@ export async function encryptText(hashKey, plainText) {
   combined.set(new Uint8Array(out), iv.length);
   let bin = "";
   combined.forEach(b => { bin += String.fromCharCode(b); });
-  return "enc:" + btoa(bin);
+  return "enc2:" + btoa(bin);
 }
 
 export async function decryptText(hashKey, cipherText) {
-  if (!cipherText || !cipherText.startsWith("enc:")) return cipherText;
-  const bin = atob(cipherText.slice(4));
+  if (!cipherText || (!cipherText.startsWith("enc:") && !cipherText.startsWith("enc2:"))) {
+    return cipherText;
+  }
+  const isV2 = cipherText.startsWith("enc2:");
+  const bin = atob(cipherText.slice(isV2 ? 5 : 4));
   const bytes = new Uint8Array(bin.length);
   for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
-  const key = await aesKey(hashKey);
+  const key = isV2 ? await aesKeyHKDF(hashKey) : await aesKey(hashKey);
   const decrypted = await crypto.subtle.decrypt(
     { name: "AES-GCM", iv: bytes.slice(0, 12) },
     key,
@@ -114,10 +140,13 @@ export async function contract() {
   };
 }
 
+export const isEncryptedName = name =>
+  Boolean(name && (name.startsWith("enc:") || name.startsWith("enc2:")));
+
 export async function storeFile(file, hashKey, jwt, progress) {
   if (file.size > MAX_SIZE) throw new Error("Choose a file up to 20 MB.");
   const c = await contract();
-  const key = await aesKey(hashKey);
+  const key = await aesKeyHKDF(hashKey);
   const blocks = await splitFile(file);
   const id = [...crypto.getRandomValues(new Uint8Array(32))]
     .map(b => b.toString(16).padStart(2, "0")).join("");
@@ -136,7 +165,8 @@ export async function storeFile(file, hashKey, jwt, progress) {
 export async function fetchFile(id, hashKey, progress) {
   const c = await contract();
   const { hashes, cids } = await c.get("0x" + id);
-  const key = await aesKey(hashKey);
+  const hkdfKey = await aesKeyHKDF(hashKey);
+  let legacyKey = null;
   const out = [];
   for (let i = 0; i < 4; i++) {
     progress("Downloading block " + (i + 1) + " of 4...");
@@ -144,7 +174,14 @@ export async function fetchFile(id, hashKey, progress) {
     if (!res.ok) throw new Error("Could not download block " + (i + 1) + " (" + res.status + ").");
     const data = await res.arrayBuffer();
     if ("0x" + await sha256(data) !== hashes[i]) throw new Error("Block " + (i + 1) + " was changed");
-    out.push(await decrypt(key, data));
+    try {
+      out.push(await decrypt(hkdfKey, data));
+    } catch (err) {
+      if (err.name !== "OperationError") throw err;
+      // Fallback to legacy SHA-256 KDF for files encrypted before HKDF upgrade
+      if (!legacyKey) legacyKey = await aesKey(hashKey);
+      out.push(await decrypt(legacyKey, data));
+    }
   }
   return new Blob(out);
 }

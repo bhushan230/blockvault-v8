@@ -28,7 +28,7 @@ import {
 import { DotLottieReact } from '@lottiefiles/dotlottie-react';
 import { auth, db } from '../lib/firebase';
 import { sha256 } from '../lib/core';
-import { decryptText, encryptText, fetchFile, storeFile, text } from '../lib/storage';
+import { decryptText, encryptText, fetchFile, isEncryptedName, storeFile, text } from '../lib/storage';
 
 function formatBytes(bytes) {
   if (!bytes && bytes !== 0) return '0 B';
@@ -195,7 +195,7 @@ export default function DashboardPage() {
     (async () => {
       const next = {};
       for (const f of myFiles) {
-        if (f.fileName?.startsWith('enc:')) {
+        if (isEncryptedName(f.fileName)) {
           try {
             next[f.id] = await decryptText(clean, f.fileName);
           } catch {
@@ -284,6 +284,9 @@ export default function DashboardPage() {
       const cleanJwt = jwt.trim();
       if (!cleanJwt) throw new Error('Enter your Pinata JWT.');
       const { id, parts, txHash } = await storeFile(file, key, cleanJwt, progress);
+      // SEC: Clear Pinata JWT from React state immediately after upload so it does not linger in memory
+      setJwt('');
+      setShowJwt(false);
       const encryptedName = await encryptText(key, file.name);
       progress(`On the blockchain (tx ${txHash}). Saving to your list...`);
       await usersRef().doc(uid).collection('myfiles').doc(id).set({
@@ -327,7 +330,7 @@ export default function DashboardPage() {
     try {
       const key = await myKey();
       const blob = await fetchFile(f.id, key, progress);
-      const originalName = f.fileName?.startsWith('enc:')
+      const originalName = isEncryptedName(f.fileName)
         ? await decryptText(key, f.fileName)
         : f.fileName;
       const url = URL.createObjectURL(blob);
@@ -924,6 +927,9 @@ export default function DashboardPage() {
                     {showJwt ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>
                 </div>
+                <p className="text-[11px] text-[#475569] mt-1">
+                  Use a scoped upload-only Pinata key. Cleared from memory after upload.
+                </p>
               </div>
             </div>
 
@@ -1055,7 +1061,7 @@ export default function DashboardPage() {
                     </AnimatePresence>
                     <div className="min-w-0">
                       <div className="font-semibold text-sm text-[#0f172a] truncate flex items-center gap-1.5">
-                        {f.fileName?.startsWith('enc:') ? (
+                        {isEncryptedName(f.fileName) ? (
                           decryptedNames[f.id] ? (
                             decryptedNames[f.id]
                           ) : (
@@ -1247,7 +1253,7 @@ export default function DashboardPage() {
                       <div className="flex flex-wrap items-center justify-between gap-2 pb-3 border-b border-slate-200">
                         <div>
                           <div className="text-sm font-bold text-slate-900 flex items-center gap-1.5">
-                            {f.fileName?.startsWith('enc:') ? (
+                            {isEncryptedName(f.fileName) ? (
                               <span className="inline-flex items-center gap-1.5 text-[#475569] font-mono text-xs">
                                 <Lock className="w-3.5 h-3.5 text-[#059669]" />
                                 [Encrypted Filename]
