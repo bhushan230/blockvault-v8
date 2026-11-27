@@ -69,6 +69,7 @@ export default function DashboardPage() {
   const [userList, setUserList] = useState([]);
   const [adminFiles, setAdminFiles] = useState([]);
   const [copiedId, setCopiedId] = useState(null);
+  const [downloadingId, setDownloadingId] = useState(null); // tracks per-file download animation
 
   const clearSensitiveState = useCallback(() => {
     setHashKey('');
@@ -316,7 +317,11 @@ export default function DashboardPage() {
   };
 
   // Preserved exact download logic + decrypted filename & object URL revocation
+  // Shows Lottie download animation for 2s before triggering actual download
   const handleDownload = async f => {
+    if (downloadingId) return; // prevent double-trigger
+    setDownloadingId(f.id);
+    await new Promise(resolve => setTimeout(resolve, 2000)); // animation plays
     setIsProcessing(true);
     setActiveBlock(0);
     try {
@@ -341,6 +346,7 @@ export default function DashboardPage() {
       setActiveBlock(0);
     } finally {
       setIsProcessing(false);
+      setDownloadingId(null);
     }
   };
 
@@ -1023,8 +1029,30 @@ export default function DashboardPage() {
                     initial={{ opacity: 0, x: -8 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: idx * 0.03 }}
-                    className="flat-card rounded-xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 hover:border-[#4f46e5]/50 transition-colors"
+                    className="flat-card rounded-xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 hover:border-[#4f46e5]/50 transition-colors relative overflow-hidden"
                   >
+                    {/* Download Lottie Overlay */}
+                    <AnimatePresence>
+                      {downloadingId === f.id && (
+                        <motion.div
+                          key="dl-anim"
+                          initial={{ opacity: 0 }}
+                          animate={{ opacity: 1 }}
+                          exit={{ opacity: 0 }}
+                          transition={{ duration: 0.2 }}
+                          className="absolute inset-0 z-20 bg-white/95 backdrop-blur-sm flex flex-col items-center justify-center rounded-xl"
+                        >
+                          <div className="w-24 h-24">
+                            <DotLottieReact
+                              src="https://lottie.host/b7ec1193-75c1-4db2-b8c1-1acdde562da2/yt5ZKRNWuI.json"
+                              loop
+                              autoplay
+                            />
+                          </div>
+                          <p className="text-xs font-semibold text-[#4f46e5] mt-1 tracking-wide">Preparing download…</p>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
                     <div className="min-w-0">
                       <div className="font-semibold text-sm text-[#0f172a] truncate flex items-center gap-1.5">
                         {f.fileName?.startsWith('enc:') ? (
@@ -1051,12 +1079,12 @@ export default function DashboardPage() {
                     </div>
 
                     <button
-                      disabled={isProcessing}
+                      disabled={isProcessing || downloadingId !== null}
                       onClick={() => handleDownload(f)}
                       className="shrink-0 inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-lg brand-gradient-btn text-xs font-semibold cursor-pointer disabled:opacity-50"
                     >
                       <Download className="w-3.5 h-3.5" />
-                      Download
+                      {downloadingId === f.id ? 'Preparing…' : 'Download'}
                     </button>
                   </motion.div>
                 ))}
