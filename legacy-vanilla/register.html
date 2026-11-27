@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Create Account</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<h2>Create Account</h2>
+<form id="form">
+  <select id="type"><option value="user">User account</option><option value="admin">Admin account</option></select>
+  <input id="name" placeholder="Full name" required>
+  <input id="email" type="email" placeholder="Email" required>
+  <button id="create">Create account</button>
+</form>
+<button id="verified" hidden>I have verified my email</button>
+<div id="result" hidden>
+  <p>Your hash key (save it now, it is shown only once):</p>
+  <p><code id="masked"></code></p>
+  <button id="copy">Copy full key</button>
+  <button id="show">Show / hide</button>
+</div>
+<p id="msg"></p>
+<p><a href="login.html">Already have an account? Login</a></p>
+<script src="https://www.gstatic.com/firebasejs/13.4.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/13.4.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/13.4.0/firebase-firestore-compat.js"></script>
+<script src="firebase-config.js"></script>
+<script src="core.js"></script>
+<script>
+const $ = id => document.getElementById(id);
+
+const db = () => firebase.firestore();
+const hex = buf => [...new Uint8Array(buf)].map(b => b.toString(16).padStart(2, "0")).join("");
+const random = () => hex(crypto.getRandomValues(new Uint8Array(32)));
+
+function waitForEmail() {
+  $("form").hidden = true;
+  $("verified").hidden = false;
+  $("msg").textContent = "Click the link in your email, then press the button.";
+}
+
+// Continue an unfinished signup after a page reload
+const stop = firebase.auth().onAuthStateChanged(async user => {
+  stop && stop();
+  if (!user) return;
+  const doc = await db().collection("users").doc(user.uid).get();
+  if (doc.exists && doc.data().keySet === false) waitForEmail();
+});
+
+$("form").onsubmit = async e => {
+  e.preventDefault();
+  const name = $("name").value.trim(), email = $("email").value.trim();
+  if (!name) { $("msg").textContent = "Enter your name."; return; }
+  $("create").disabled = true;
+  $("msg").textContent = "Creating account...";
+  try {
+    // Temporary password; replaced by the hash key after verification
+    const { user } = await firebase.auth().createUserWithEmailAndPassword(email, random());
+    await db().collection("users").doc(user.uid).set({ name, email, role: "user",
+      blocked: false, adminRequest: $("type").value === "admin", keySet: false });
+    await user.sendEmailVerification();
+    waitForEmail();
+  } catch (err) {
+    $("msg").textContent = err.message;
+    $("create").disabled = false;
+  }
+};
+
+$("verified").onclick = async () => {
+  try {
+    const user = firebase.auth().currentUser;
+    await user.reload();
+    if (!firebase.auth().currentUser.emailVerified) {
+      $("msg").textContent = "Email not verified yet. Check inbox and spam.";
+      return;
+    }
+    await user.getIdToken(true);
+    $("verified").disabled = true;
+
+    const key = await sha256(crypto.getRandomValues(new Uint8Array(32)));
+    const masked = key.slice(0, 6) + "*".repeat(20) + key.slice(-4);
+    const id = await sha256(new TextEncoder().encode(key));
+    await db().collection("keys").doc(id).set({ uid: user.uid, email: user.email });
+    await user.updatePassword(key);
+
+    $("masked").textContent = masked;
+    $("result").hidden = false;
+    $("verified").hidden = true;
+    $("copy").onclick = async () => {
+      try {
+        await navigator.clipboard.writeText(key);
+        $("msg").textContent = "Key copied. Save it somewhere safe.";
+      } catch {
+        $("msg").textContent = "Copy failed. Use Show and copy it by hand.";
+      }
+    };
+    $("show").onclick = () => {
+      $("masked").textContent = $("masked").textContent === key ? masked : key;
+    };
+    $("msg").textContent = "Account ready. Copy your key now, then login.";
+    await db().collection("users").doc(user.uid).update({ keySet: true });
+    await firebase.auth().signOut();
+  } catch (err) {
+    $("verified").disabled = false;
+    $("msg").textContent = err.message;
+  }
+};
+</script>
+</body>
+</html>

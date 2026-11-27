@@ -1,0 +1,8 @@
+body { font-family: sans-serif; max-width: 700px; margin: 30px auto; padding: 0 16px; }
+input { display: block; margin: 8px 0; padding: 8px; width: 100%; max-width: 420px; box-sizing: border-box; }
+button { padding: 8px 14px; margin: 8px 8px 8px 0; }
+li, code { word-break: break-all; }
+li { margin: 8px 0; }
+.grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 10px; }
+.block { border: 2px solid #334; border-radius: 6px; padding: 10px; word-break: break-all; }
+.block div:first-child { font-weight: bold; }

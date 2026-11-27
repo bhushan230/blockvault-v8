@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Block Storage Demo</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <h2>File Block Storage (Version 8)</h2>
+  <button id="logout">Logout</button>
+  <p id="user"></p>
+  <div id="app" hidden>
+  <h3>Wallets</h3>
+  <button id="metamask">Connect MetaMask</button>
+  <button id="tronlink">Connect TronLink</button>
+  <p id="wallet"></p>
+  <div id="staff" hidden>
+    <h3>Manage users</h3>
+    <ul id="users"></ul>
+    <p id="staffmsg"></p>
+  </div>
+  <h3>Files</h3>
+  <input type="password" id="hashkey" placeholder="Your hash key (encrypts and decrypts your files)">
+  <input type="password" id="jwt" placeholder="Pinata JWT (needed for upload only)">
+  <input type="file" id="file">
+  <p id="msg"></p>
+  <h3>My files</h3>
+  <ul id="mine"></ul>
+  <div id="adminfiles" hidden>
+    <h3>Block records (admin only)</h3>
+    <button id="refresh">Refresh</button>
+    <div id="records"></div>
+  </div>
+  </div>
+<script src="core.js"></script>
+<script src="chain-config.js"></script>
+<script src="storage.js"></script>
+<script src="https://www.gstatic.com/firebasejs/13.4.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/13.4.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/13.4.0/firebase-firestore-compat.js"></script>
+<script src="firebase-config.js"></script>
+<script src="dashboard.js"></script>
+</body>
+</html>

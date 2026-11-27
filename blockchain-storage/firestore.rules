@@ -1,0 +1,54 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function me() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
+    }
+    function staff(role) {
+      return request.auth != null && request.auth.token.email_verified
+             && me().role == role && me().blocked == false;
+    }
+    function changed() {
+      return request.resource.data.diff(resource.data).affectedKeys();
+    }
+
+    // Found only by someone who knows the hash key; cannot be listed
+    match /keys/{id} {
+      allow get: if true;
+      allow create: if request.auth != null
+                    && request.resource.data.uid == request.auth.uid
+                    && request.resource.data.email == request.auth.token.email;
+    }
+
+    // Users can add records; only admins can read them
+    match /files/{id} {
+      allow create: if request.auth != null && request.auth.token.email_verified
+                    && me().blocked == false
+                    && request.resource.data.uid == request.auth.uid
+                    && request.resource.data.email == request.auth.token.email;
+      allow read: if staff("admin");
+    }
+
+    match /users/{uid}/myfiles/{id} {
+      allow read: if request.auth != null && request.auth.uid == uid;
+      allow create: if request.auth != null && request.auth.uid == uid
+                    && request.auth.token.email_verified && me().blocked == false;
+    }
+
+    match /users/{uid} {
+      allow get: if request.auth != null && request.auth.uid == uid;
+      allow read: if staff("admin") || staff("moderator");
+      allow create: if request.auth != null && request.auth.uid == uid
+                    && request.resource.data.role == "user"
+                    && request.resource.data.blocked == false
+                    && request.resource.data.email == request.auth.token.email;
+      allow update: if (staff("admin") && request.auth.uid != uid
+                        && changed().hasOnly(["role", "blocked"]))
+                    || (staff("moderator") && resource.data.role == "user"
+                        && changed().hasOnly(["blocked"]))
+                    || (request.auth != null && request.auth.uid == uid
+                        && resource.data.blocked == false
+                        && changed().hasOnly(["metamask", "tronlink", "keySet"]));
+    }
+  }
+}

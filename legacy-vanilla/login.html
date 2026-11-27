@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Login</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<h2>Login</h2>
+<form id="form">
+  <select id="type"><option value="user">User login</option><option value="admin">Admin login</option></select>
+  <input id="key" type="password" placeholder="Hash key" required>
+  <button>Login</button>
+</form>
+<p id="msg"></p>
+<p><a href="register.html">Create a new account</a></p>
+<script src="https://www.gstatic.com/firebasejs/13.4.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/13.4.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/13.4.0/firebase-firestore-compat.js"></script>
+<script src="firebase-config.js"></script>
+<script src="core.js"></script>
+<script>
+const $ = id => document.getElementById(id);
+
+$("form").onsubmit = async e => {
+  e.preventDefault();
+  $("msg").textContent = "Checking...";
+  try {
+    const key = $("key").value.trim().toLowerCase();
+    const id = await sha256(new TextEncoder().encode(key));
+    const found = await firebase.firestore().collection("keys").doc(id).get();
+    if (!found.exists) throw new Error("Unknown key");
+    const { user } = await firebase.auth().signInWithEmailAndPassword(found.data().email, key);
+    if (!user.emailVerified) {
+      await user.sendEmailVerification().catch(() => {});
+      await firebase.auth().signOut();
+      $("msg").textContent = "Verify your email first. Check your inbox and spam folder.";
+      return;
+    }
+    if ($("type").value === "admin") {
+      const me = (await firebase.firestore().collection("users").doc(user.uid).get()).data();
+      if (me?.role !== "admin") {
+        await firebase.auth().signOut();
+        $("msg").textContent = "This account is not an approved admin.";
+        return;
+      }
+    }
+    location.href = "index.html";
+  } catch (err) {
+    $("msg").textContent = "Login failed. Check your hash key.";
+    console.error(err);
+  }
+};
+</script>
+</body>
+</html>
