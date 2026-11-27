@@ -632,14 +632,48 @@ export default function DashboardPage() {
               })}
             </div>
 
-            <div className="w-full h-2 bg-slate-100 rounded-full overflow-hidden border border-[#e2e8f0]">
-              <motion.div
-                initial={false}
-                animate={{ width: `${(activeBlock / 4) * 100}%` }}
-                transition={{ duration: 0.3 }}
-                className="h-full brand-gradient"
-              />
-            </div>
+            {(() => {
+              const usedBytes = myFiles.reduce((acc, f) => acc + (f.size || 0), 0);
+              const capacityBytes = 1024 * 1024 * 1024; // 1 GB Pinata Vault capacity
+              const usedPct = Math.min(100, (usedBytes / capacityBytes) * 100);
+              const displayPct = usedBytes > 0 ? Math.max(usedPct, 1.5) : 0;
+              const barWidth = isProcessing ? (activeBlock / 4) * 100 : displayPct;
+              const barColorClass =
+                usedPct >= 85
+                  ? 'bg-red-500'
+                  : usedPct >= 60
+                  ? 'bg-amber-500'
+                  : 'brand-gradient';
+
+              return (
+                <div className="space-y-1.5">
+                  <div className="flex items-center justify-between text-[11px]">
+                    <span className="font-semibold text-[#0f172a] flex items-center gap-1.5">
+                      <span
+                        className={`h-2 w-2 rounded-full ${
+                          usedBytes > 0 ? 'bg-[#10b981]' : 'bg-slate-300'
+                        }`}
+                      />
+                      {isProcessing
+                        ? `Sharding Progress (${activeBlock || 1}/4 blocks)`
+                        : 'Vault Memory Level'}
+                    </span>
+                    <span className="font-mono text-[#475569]">
+                      <strong className="text-[#0f172a]">{formatBytes(usedBytes)}</strong> / 1 GB (
+                      {usedPct.toFixed(2)}%)
+                    </span>
+                  </div>
+                  <div className="w-full h-2.5 bg-slate-100 rounded-full overflow-hidden border border-[#e2e8f0]">
+                    <motion.div
+                      initial={false}
+                      animate={{ width: `${barWidth}%` }}
+                      transition={{ duration: 0.4, ease: 'easeOut' }}
+                      className={`h-full rounded-full ${isProcessing ? 'brand-gradient' : barColorClass}`}
+                    />
+                  </div>
+                </div>
+              );
+            })()}
           </motion.section>
         </div>
 
