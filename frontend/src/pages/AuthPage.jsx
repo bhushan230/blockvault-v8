@@ -191,6 +191,14 @@ export default function AuthPage() {
   const [fingerprint, setFingerprint] = useState('');
   const [loginLoading, setLoginLoading] = useState(false);
   const [loginStatus, setLoginStatus] = useState(null);
+  const [loginAttempts, setLoginAttempts] = useState(() => {
+    const saved = Number(sessionStorage.getItem('bv_login_attempts') || 0);
+    return Number.isFinite(saved) ? saved : 0;
+  });
+  const [lockedUntil, setLockedUntil] = useState(() => {
+    const saved = Number(sessionStorage.getItem('bv_login_locked_until') || 0);
+    return Number.isFinite(saved) && saved > Date.now() ? saved : null;
+  });
 
   // --- Register State ---
   const [regStep, setRegStep] = useState('form'); // 'form' | 'verify' | 'minting' | 'tick' | 'result'
@@ -261,9 +269,14 @@ export default function AuthPage() {
     return () => unsubscribe && unsubscribe();
   }, [isRegister]);
 
-  // Preserved exact login logic with 3000ms delay for Lottie animation
+  // Preserved exact login logic with 3000ms delay for Lottie animation + brute-force backoff
   const handleLogin = async e => {
     e.preventDefault();
+    if (lockedUntil && Date.now() < lockedUntil) {
+      const secs = Math.ceil((lockedUntil - Date.now()) / 1000);
+      setLoginStatus({ kind: 'error', text: `Too many failed attempts. Try again in ${secs}s.` });
+      return;
+    }
     setLoginLoading(true);
     setLoginStatus({ kind: 'info', text: 'Checking...' });
     try {
@@ -296,10 +309,26 @@ export default function AuthPage() {
         }
       }
       await minDelay;
+      setLoginAttempts(0);
+      setLockedUntil(null);
+      sessionStorage.removeItem('bv_login_attempts');
+      sessionStorage.removeItem('bv_login_locked_until');
       setLoginKey('');
       navigate('/');
     } catch {
-      setLoginStatus({ kind: 'error', text: 'Sign in failed. Check your hash key.' });
+      const nextAttempts = loginAttempts + 1;
+      setLoginAttempts(nextAttempts);
+      sessionStorage.setItem('bv_login_attempts', String(nextAttempts));
+      if (nextAttempts >= 5) {
+        const lockMs = Math.min(Math.pow(2, nextAttempts - 5) * 60 * 1000, 30 * 60 * 1000);
+        const until = Date.now() + lockMs;
+        setLockedUntil(until);
+        sessionStorage.setItem('bv_login_locked_until', String(until));
+        const mins = Math.ceil(lockMs / 60000);
+        setLoginStatus({ kind: 'error', text: `Too many failed attempts. Locked for ${mins} min.` });
+      } else {
+        setLoginStatus({ kind: 'error', text: 'Sign in failed. Check your hash key.' });
+      }
       setLoginLoading(false);
     }
   };
