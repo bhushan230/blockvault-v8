@@ -439,10 +439,10 @@ export default function AuthPage() {
                     <span className="h-2 w-2 rounded-full bg-emerald-300" />
                     TRON SHASTA • CLIENT-SIDE ENCRYPTION
                   </div>
-                  <h1 className="text-3xl xl:text-4xl font-display font-bold leading-[1.15] tracking-tight">
+                  <h1 className="text-3xl xl:text-4xl font-display font-bold leading-[1.15] tracking-tight text-[#ffffff]">
                     Decentralized 4-Block Encrypted Storage.
                   </h1>
-                  <p className="text-sm text-indigo-100 leading-relaxed max-w-md">
+                  <p className="text-sm text-[#e0e7ff] leading-relaxed max-w-md">
                     Every file is split into four equal shards, sealed client-side with AES-256-GCM, pinned to IPFS via Pinata, and anchored on the TRON Shasta smart contract.
                   </p>
                 </div>
@@ -458,9 +458,9 @@ export default function AuthPage() {
                       key={item.title}
                       className="rounded-xl bg-white/10 border border-white/15 p-3.5"
                     >
-                      <item.icon className="w-4 h-4 text-indigo-100 mb-1.5" />
-                      <div className="text-xs font-semibold text-white">{item.title}</div>
-                      <div className="text-[11px] text-indigo-100/80 mt-0.5">{item.desc}</div>
+                      <item.icon className="w-4 h-4 text-[#e0e7ff] mb-1.5" />
+                      <div className="text-xs font-semibold text-[#ffffff]">{item.title}</div>
+                      <div className="text-[11px] text-[#e0e7ff] mt-0.5">{item.desc}</div>
                     </div>
                   ))}
                 </div>
@@ -474,14 +474,14 @@ export default function AuthPage() {
                 transition={{ duration: 0.22 }}
                 className="space-y-5"
               >
-                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-md bg-white/15 border border-white/20 text-xs font-mono text-white">
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-md bg-white/15 border border-white/20 text-xs font-mono text-[#ffffff]">
                   <span className="h-2 w-2 rounded-full bg-emerald-300" />
                   256-BIT KEY PROVISIONING
                 </div>
-                <h1 className="text-3xl xl:text-4xl font-display font-bold leading-[1.15] tracking-tight">
+                <h1 className="text-3xl xl:text-4xl font-display font-bold leading-[1.15] tracking-tight text-[#ffffff]">
                   One-Time Master Hash key Provisioning.
                 </h1>
-                <p className="text-sm text-indigo-100 leading-relaxed max-w-md">
+                <p className="text-sm text-[#e0e7ff] leading-relaxed max-w-md">
                   Your account generates a unique 256-bit cryptographic key after email verification. It serves as both your sign in credential and your AES-256-GCM encryption secret.
                 </p>
                 <div className="space-y-2.5 pt-1">
@@ -492,7 +492,7 @@ export default function AuthPage() {
                   ].map(item => (
                     <div
                       key={item}
-                      className="rounded-xl bg-white/10 border border-white/15 px-4 py-2.5 text-xs font-mono text-white"
+                      className="rounded-xl bg-white/10 border border-white/15 px-4 py-2.5 text-xs font-mono text-[#e0e7ff]"
                     >
                       {item}
                     </div>
@@ -503,7 +503,7 @@ export default function AuthPage() {
           </AnimatePresence>
 
           <div className="space-y-2.5">
-            <div className="text-xs text-indigo-100/80 font-mono">
+            <div className="text-xs text-[#e0e7ff] font-mono">
               {isRegister
                 ? 'SAVE YOUR HASH KEY SAFELY • CLIENT-SIDE ENCRYPTION'
                 : 'SHA-256 KEY AUTHENTICATION • CLIENT-SIDE ENCRYPTION'}
@@ -511,7 +511,7 @@ export default function AuthPage() {
             <button
               type="button"
               onClick={() => setShowPrivacy(true)}
-              className="inline-flex items-center gap-1.5 text-[11px] text-indigo-100 hover:text-white transition-colors cursor-pointer rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/80"
+              className="inline-flex items-center gap-1.5 text-[11px] text-[#e0e7ff] hover:text-[#ffffff] transition-colors cursor-pointer rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/80"
             >
               <FileText className="w-3 h-3" />
               Privacy Policy & Terms
